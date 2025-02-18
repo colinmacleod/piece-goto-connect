@@ -62,9 +62,9 @@ export const sendSms = createAction({
                     
                     return {
                         disabled: false,
-                        options: response.body.numbers.map((number: any) => ({
-                            label: number.phoneNumber,
-                            value: number.phoneNumber
+                        options: response.body.items.map((number: any) => ({
+                            label: number.number,
+                            value: number.number
                         }))
                     };
                 } catch (error: unknown) {
