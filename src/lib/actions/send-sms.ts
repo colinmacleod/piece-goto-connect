@@ -1,4 +1,4 @@
-import { createAction, Property, OAuth2PropertyValue } from '@activepieces/pieces-framework';
+import { createAction, Property, OAuth2PropertyValue, DropdownState } from '@activepieces/pieces-framework';
 import { httpClient, HttpMethod } from '@activepieces/pieces-common';
 import { gotoConnectAuth } from '../auth';
 
@@ -13,7 +13,7 @@ export const sendSms = createAction({
             description: 'Phone number to send SMS from',
             required: true,
             refreshers: [],
-            options: async (props) => {
+            options: async (props): Promise<DropdownState<string>> => {
                 // Debug what we receive
                 const debugInfo = {
                     auth_type: typeof props.auth,
@@ -23,33 +23,26 @@ export const sendSms = createAction({
                 
                 console.debug('[GoToConnect] Dropdown props:', debugInfo);
 
-                // Handle case when no connection is selected
-                if (!props.auth) {
-                    return {
-                        disabled: false,
-                        options: [{
-                            label: 'Please select a connection first',
-                            value: 'no_connection'
-                        }]
-                    };
-                }
-
-                // Now we can try to fetch the phone numbers
+                // First get the account info
                 try {
-                    // Debug the token contents
                     const token = (props.auth as OAuth2PropertyValue).access_token;
-                    const tokenParts = token.split('.');
-                    const tokenPayload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
-                    console.debug('[GoToConnect] Token payload:', tokenPayload);
+                    const accountResponse = await httpClient.sendRequest({
+                        method: HttpMethod.GET,
+                        url: 'https://api.getgo.com/admin/rest/v1/me',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/json'
+                        }
+                    });
 
-                    // Extract accountKey from token if available
-                    const accountKey = tokenPayload.account_key;
-                    if (!accountKey) {
-                        console.error('[GoToConnect] No account_key in token:', tokenPayload);
+                    console.debug('[GoToConnect] Account Response:', accountResponse.body);
+
+                    if (!accountResponse.body.accountKey) {
+                        console.error('[GoToConnect] No accountKey in response:', accountResponse.body);
                         return {
                             disabled: false,
                             options: [{
-                                label: 'Error: No account key found in token',
+                                label: 'Error: Could not get account key',
                                 value: 'error_no_account_key'
                             }]
                         };
@@ -58,7 +51,7 @@ export const sendSms = createAction({
                     // Then get the phone numbers
                     const response = await httpClient.sendRequest({
                         method: HttpMethod.GET,
-                        url: `https://api.goto.com/voice-admin/v1/phone-numbers?pageSize=100&accountKey=${accountKey}`,
+                        url: `https://api.goto.com/voice-admin/v1/phone-numbers?pageSize=100&accountKey=${accountResponse.body.accountKey}`,
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Accept': 'application/json'
