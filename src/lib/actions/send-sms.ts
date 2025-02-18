@@ -47,6 +47,15 @@ export const sendSms = createAction({
                         }];
                     }
 
+                    // Check if response.body exists and has numbers
+                    if (!response.body || !Array.isArray(response.body.numbers)) {
+                        console.error('[GoToConnect] Unexpected API response format:', response.body);
+                        return [{
+                            label: 'Error: Unexpected API response format',
+                            value: 'error_format'
+                        }];
+                    }
+
                     return response.body.numbers.map((number: any) => ({
                         label: number.phoneNumber,
                         value: number.phoneNumber
