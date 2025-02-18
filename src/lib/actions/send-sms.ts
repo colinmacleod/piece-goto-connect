@@ -15,6 +15,7 @@ export const sendSms = createAction({
             refreshers: [],
             options: async (props) => {
                 if (!props.auth) {
+                    console.debug('[GoToConnect] No auth provided');
                     return [{
                         label: 'Please select a connection first',
                         value: 'no_connection'
@@ -31,7 +32,7 @@ export const sendSms = createAction({
                     // Call GoTo API to get available numbers
                     const response = await httpClient.sendRequest({
                         method: HttpMethod.GET,
-                        url: 'https://api.goto.com/admin/rest/v1/me/numbers',  // Updated endpoint
+                        url: 'https://api.goto.com/admin/rest/v1/me/numbers',
                         headers: {
                             'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`,
                             'Accept': 'application/json'
@@ -40,6 +41,16 @@ export const sendSms = createAction({
 
                     console.debug('[GoToConnect] API Response:', response.body);
 
+                    // Return empty array if no response or response body
+                    if (!response || !response.body) {
+                        console.error('[GoToConnect] Empty response');
+                        return [{
+                            label: 'Error: No response from API',
+                            value: 'error_no_response'
+                        }];
+                    }
+
+                    // Return error if 404
                     if (response.status === 404) {
                         return [{
                             label: 'Error: Phone numbers endpoint not found',
@@ -47,12 +58,12 @@ export const sendSms = createAction({
                         }];
                     }
 
-                    // Check if response.body exists and has numbers
-                    if (!response.body || !Array.isArray(response.body.numbers)) {
-                        console.error('[GoToConnect] Unexpected API response format:', response.body);
+                    // Return empty array if no numbers array
+                    if (!Array.isArray(response.body.numbers)) {
+                        console.error('[GoToConnect] Response missing numbers array:', response.body);
                         return [{
-                            label: 'Error: Unexpected API response format',
-                            value: 'error_format'
+                            label: 'Error: No phone numbers found',
+                            value: 'error_no_numbers'
                         }];
                     }
 
