@@ -13,19 +13,28 @@ export const sendSms = createAction({
             description: 'Phone number to send SMS from',
             required: true,
             refreshers: [],
-            options: async ({ auth }) => {
-                // Call GoTo API to get available numbers
+            options: async (props) => {
+                // Debug what we receive
+                const debugInfo = {
+                    auth_type: typeof props.auth,
+                    auth_keys: props.auth ? Object.keys(props.auth) : 'auth is undefined',
+                    props_keys: Object.keys(props)
+                };
+                
+                console.debug('[GoToConnect] Dropdown props:', debugInfo);
+
+                throw new Error('Debug info: ' + JSON.stringify(debugInfo, null, 2));
+
+                // Original code commented out for now
+                /*
                 const response = await httpClient.sendRequest({
                     method: HttpMethod.GET,
                     url: 'https://api.goto.com/connect/v1/phone-numbers',
                     headers: {
-                        'Authorization': `Bearer ${(auth as OAuth2PropertyValue).access_token}`
+                        'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`
                     }
                 });
-                return response.body.numbers.map((number: any) => ({
-                    label: number.phoneNumber,
-                    value: number.phoneNumber
-                }));
+                */
             }
         }),
         to: Property.ShortText({
