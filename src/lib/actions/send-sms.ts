@@ -14,32 +14,50 @@ export const sendSms = createAction({
             required: true,
             refreshers: [],
             options: async (props) => {
+                if (!props.auth) {
+                    return [{
+                        label: 'Please select a connection first',
+                        value: 'no_connection'
+                    }];
+                }
+
                 console.debug('[GoToConnect] Dropdown props:', {
                     auth_type: typeof props.auth,
                     auth_keys: props.auth ? Object.keys(props.auth) : 'auth is undefined',
                     props_keys: Object.keys(props)
                 });
 
-                // Call GoTo API to get available numbers
-                const response = await httpClient.sendRequest({
-                    method: HttpMethod.GET,
-                    url: 'https://api.goto.com/connect/v1/phone-numbers',
-                    headers: {
-                        'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`,
-                        'Accept': 'application/json'
+                try {
+                    // Call GoTo API to get available numbers
+                    const response = await httpClient.sendRequest({
+                        method: HttpMethod.GET,
+                        url: 'https://api.goto.com/admin/rest/v1/me/numbers',  // Updated endpoint
+                        headers: {
+                            'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    console.debug('[GoToConnect] API Response:', response.body);
+
+                    if (response.status === 404) {
+                        return [{
+                            label: 'Error: Phone numbers endpoint not found',
+                            value: 'error_404'
+                        }];
                     }
-                });
 
-                console.debug('[GoToConnect] API Response:', response.body);
-
-                if (response.status === 404) {
-                    throw new Error('Phone numbers endpoint not found. Please check the API documentation for the correct endpoint.');
+                    return response.body.numbers.map((number: any) => ({
+                        label: number.phoneNumber,
+                        value: number.phoneNumber
+                    }));
+                } catch (error: unknown) {
+                    console.error('[GoToConnect] Error fetching numbers:', error);
+                    return [{
+                        label: `Error: ${error instanceof Error ? error.message : 'Failed to fetch phone numbers'}`,
+                        value: 'error'
+                    }];
                 }
-
-                return response.body.numbers.map((number: any) => ({
-                    label: number.phoneNumber,
-                    value: number.phoneNumber
-                }));
             }
         }),
         to: Property.ShortText({
