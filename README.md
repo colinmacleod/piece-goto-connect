@@ -41,4 +41,4 @@ I tested it on a self-hosted instance, running ActivePieces v0.44.0.
 ## Support
 For issues or questions, please contact:
 - Author: Colin MacLeod
-- Repository: [https://www.npmjs.com/package/@bitquirky/piece-goto-connect?activeTab=code] 
+- Repository: [https://github.com/colinmacleod/piece-goto-connect] 
