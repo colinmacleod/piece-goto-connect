@@ -15,13 +15,14 @@ export const sendSms = createAction({
             refreshers: [],
             options: async (props): Promise<DropdownState<string>> => {
                 // Debug what we receive
+                /* Debug logging
                 const debugInfo = {
                     auth_type: typeof props.auth,
                     auth_keys: props.auth ? Object.keys(props.auth) : 'auth is undefined',
                     props_keys: Object.keys(props)
                 };
-                
                 console.debug('[GoToConnect] Dropdown props:', debugInfo);
+                */
 
                 // First get the account info
                 try {
@@ -35,10 +36,10 @@ export const sendSms = createAction({
                         }
                     });
 
-                    console.debug('[GoToConnect] Account Response:', accountResponse.body);
+                    // console.debug('[GoToConnect] Account Response:', accountResponse.body);
 
                     if (!accountResponse.body.accountKey) {
-                        console.error('[GoToConnect] No accountKey in response:', accountResponse.body);
+                        console.error('[GoToConnect] No accountKey in response');  // Removed response body from error log
                         return {
                             disabled: false,
                             options: [{
@@ -58,7 +59,7 @@ export const sendSms = createAction({
                         }
                     });
 
-                    console.debug('[GoToConnect] API Response:', response.body);
+                    // console.debug('[GoToConnect] API Response:', response.body);
                     
                     return {
                         disabled: false,
@@ -68,7 +69,7 @@ export const sendSms = createAction({
                         }))
                     };
                 } catch (error: unknown) {
-                    console.error('[GoToConnect] Error:', error);
+                    console.error('[GoToConnect] Error:', error instanceof Error ? error.message : 'Unknown error');  // Simplified error logging
                     return {
                         disabled: false,
                         options: [{

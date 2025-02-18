@@ -1,17 +1,20 @@
 # GoTo Connect Piece for ActivePieces
 
-This piece _attempts_  to provide integration with GoTo Connect's API, allowing you to send SMS messages through your GoTo Connect account. 
+This piece provides integration with GoTo Connect's API, allowing you to send SMS messages through your GoTo Connect account. 
 
-It is still a WIP and not functional.
+It should be possible to extend this to use other parts of the GoTo Connect API, such as the voice API or receiving SMS messages.
 
 ## Authentication
 
 The piece uses OAuth2 authentication with GoTo Connect. You will need:
 1. A GoTo Connect account
-2. An OAuth2 application registered with GoTo Connect
+2. An OAuth2 application registered with GoTo Connect Developer Console (https://developer.goto.com)
    - Client ID
    - Client Secret
    - Redirect URI (configured to your ActivePieces instance)
+   - Required OAuth Scopes:
+     * GoToConnect - For sending SMS messages
+     * Admin Center - For accessing account's phone numbers
 
 ## Available Actions
 
@@ -29,14 +32,11 @@ This piece is built for ActivePieces and requires:
 - @activepieces/pieces-framework
 - @activepieces/pieces-common
 
-I tested it on a self-hosted instance, running ActivePieces v0.44.0.
-
-### Known Issues
-1. The from number selection dropdown is not working, so the piece is not functional.
+Tested on a self-hosted instance, running ActivePieces v0.44.0.
 
 ### Version History
-- 0.1.x: Added "from" number selection dropdown
-- 0.0.x: Initial implementation with basic ActivePieces piece framework (not functional)
+- 0.1.x: Added working SMS functionality with phone number selection
+- 0.0.x: Initial implementation with basic ActivePieces piece framework
 
 ## Support
 For issues or questions, please contact:
