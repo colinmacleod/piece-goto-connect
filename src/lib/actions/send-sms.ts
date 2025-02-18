@@ -38,9 +38,10 @@ export const sendSms = createAction({
                 try {
                     const response = await httpClient.sendRequest({
                         method: HttpMethod.GET,
-                        url: 'https://api.goto.com/connect/v1/phone-numbers',
+                        url: 'https://api.goto.com/voice-admin/v1/phone-numbers?pageSize=100',
                         headers: {
-                            'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`
+                            'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`,
+                            'Accept': 'application/json'
                         }
                     });
 
