@@ -4,7 +4,7 @@ import { sendSms } from './lib/actions/send-sms';
 
 export const gotoConnect = createPiece({
     displayName: 'GoTo Connect',
-    minimumSupportedRelease: '0.1.1',
+    minimumSupportedRelease: '0.1.7',
     logoUrl: './assets/goto-connect-icon.png',
     authors: ['Colin MacLeod'],
     auth: gotoConnectAuth,
