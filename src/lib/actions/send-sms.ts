@@ -23,18 +23,37 @@ export const sendSms = createAction({
                 
                 console.debug('[GoToConnect] Dropdown props:', debugInfo);
 
-                throw new Error('Debug info: ' + JSON.stringify(debugInfo, null, 2));
+                // Handle case when no connection is selected
+                if (!props.auth) {
+                    return [{
+                        label: 'Please select a connection first',
+                        value: 'no_connection'
+                    }];
+                }
 
-                // Original code commented out for now
-                /*
-                const response = await httpClient.sendRequest({
-                    method: HttpMethod.GET,
-                    url: 'https://api.goto.com/connect/v1/phone-numbers',
-                    headers: {
-                        'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`
-                    }
-                });
-                */
+                // Now we can try to fetch the phone numbers
+                try {
+                    const response = await httpClient.sendRequest({
+                        method: HttpMethod.GET,
+                        url: 'https://api.goto.com/connect/v1/phone-numbers',
+                        headers: {
+                            'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`
+                        }
+                    });
+
+                    console.debug('[GoToConnect] API Response:', response.body);
+                    
+                    return response.body.numbers.map((number: any) => ({
+                        label: number.phoneNumber,
+                        value: number.phoneNumber
+                    }));
+                } catch (error: unknown) {
+                    console.error('[GoToConnect] Error:', error);
+                    return [{
+                        label: `Error: ${error instanceof Error ? error.message : 'Failed to fetch phone numbers'}`,
+                        value: 'error'
+                    }];
+                }
             }
         }),
         to: Property.ShortText({
