@@ -36,26 +36,18 @@ export const sendSms = createAction({
 
                 // Now we can try to fetch the phone numbers
                 try {
-                    // First get the account key
-                    const accountResponse = await httpClient.sendRequest({
-                        method: HttpMethod.GET,
-                        url: 'https://api.goto.com/admin/v1/me',
-                        headers: {
-                            'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`,
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    console.debug('[GoToConnect] Account Response:', accountResponse.body);
-
-                    const accountKey = accountResponse.body.accountKey;
+                    // Debug the token contents
+                    const token = (props.auth as OAuth2PropertyValue).access_token;
+                    const tokenParts = token.split('.');
+                    const tokenPayload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
+                    console.debug('[GoToConnect] Token payload:', tokenPayload);
 
                     // Then get the phone numbers
                     const response = await httpClient.sendRequest({
                         method: HttpMethod.GET,
-                        url: `https://api.goto.com/voice-admin/v1/phone-numbers?pageSize=100&accountKey=${accountKey}`,
+                        url: 'https://api.goto.com/voice-admin/v1/phone-numbers?pageSize=100',
                         headers: {
-                            'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`,
+                            'Authorization': `Bearer ${token}`,
                             'Accept': 'application/json'
                         }
                     });
