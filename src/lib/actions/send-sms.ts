@@ -42,10 +42,23 @@ export const sendSms = createAction({
                     const tokenPayload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
                     console.debug('[GoToConnect] Token payload:', tokenPayload);
 
+                    // Extract accountKey from token if available
+                    const accountKey = tokenPayload.account_key;
+                    if (!accountKey) {
+                        console.error('[GoToConnect] No account_key in token:', tokenPayload);
+                        return {
+                            disabled: false,
+                            options: [{
+                                label: 'Error: No account key found in token',
+                                value: 'error_no_account_key'
+                            }]
+                        };
+                    }
+
                     // Then get the phone numbers
                     const response = await httpClient.sendRequest({
                         method: HttpMethod.GET,
-                        url: 'https://api.goto.com/voice-admin/v1/phone-numbers?pageSize=100',
+                        url: `https://api.goto.com/voice-admin/v1/phone-numbers?pageSize=100&accountKey=${accountKey}`,
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Accept': 'application/json'
