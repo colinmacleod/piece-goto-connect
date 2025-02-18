@@ -20,9 +20,9 @@
   "license": "ISC",
   "description": "GoTo Connect integration for ActivePieces",
   "dependencies": {
-    "@activepieces/pieces-framework": "^0.7.48",
+    "@activepieces/pieces-framework": "^0.7.43",
     "@activepieces/pieces-common": "^0.4.1",
-    "@activepieces/shared": "^0.10.154"
+    "@activepieces/shared": "^0.10.149"
   },
   "devDependencies": {
     "typescript": "^5.3.3",
