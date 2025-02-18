@@ -25,10 +25,13 @@ export const sendSms = createAction({
 
                 // Handle case when no connection is selected
                 if (!props.auth) {
-                    return [{
-                        label: 'Please select a connection first',
-                        value: 'no_connection'
-                    }];
+                    return {
+                        disabled: false,
+                        options: [{
+                            label: 'Please select a connection first',
+                            value: 'no_connection'
+                        }]
+                    };
                 }
 
                 // Now we can try to fetch the phone numbers
@@ -43,16 +46,22 @@ export const sendSms = createAction({
 
                     console.debug('[GoToConnect] API Response:', response.body);
                     
-                    return response.body.numbers.map((number: any) => ({
-                        label: number.phoneNumber,
-                        value: number.phoneNumber
-                    }));
+                    return {
+                        disabled: false,
+                        options: response.body.numbers.map((number: any) => ({
+                            label: number.phoneNumber,
+                            value: number.phoneNumber
+                        }))
+                    };
                 } catch (error: unknown) {
                     console.error('[GoToConnect] Error:', error);
-                    return [{
-                        label: `Error: ${error instanceof Error ? error.message : 'Failed to fetch phone numbers'}`,
-                        value: 'error'
-                    }];
+                    return {
+                        disabled: false,
+                        options: [{
+                            label: `Error: ${error instanceof Error ? error.message : 'Failed to fetch phone numbers'}`,
+                            value: 'error'
+                        }]
+                    };
                 }
             }
         }),
