@@ -14,27 +14,32 @@ export const sendSms = createAction({
             required: true,
             refreshers: [],
             options: async (props) => {
-                // Debug what we receive
-                const debugInfo = {
+                console.debug('[GoToConnect] Dropdown props:', {
                     auth_type: typeof props.auth,
                     auth_keys: props.auth ? Object.keys(props.auth) : 'auth is undefined',
                     props_keys: Object.keys(props)
-                };
-                
-                console.debug('[GoToConnect] Dropdown props:', debugInfo);
+                });
 
-                throw new Error('Debug info: ' + JSON.stringify(debugInfo, null, 2));
-
-                // Original code commented out for now
-                /*
+                // Call GoTo API to get available numbers
                 const response = await httpClient.sendRequest({
                     method: HttpMethod.GET,
                     url: 'https://api.goto.com/connect/v1/phone-numbers',
                     headers: {
-                        'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`
+                        'Authorization': `Bearer ${(props.auth as OAuth2PropertyValue).access_token}`,
+                        'Accept': 'application/json'
                     }
                 });
-                */
+
+                console.debug('[GoToConnect] API Response:', response.body);
+
+                if (response.status === 404) {
+                    throw new Error('Phone numbers endpoint not found. Please check the API documentation for the correct endpoint.');
+                }
+
+                return response.body.numbers.map((number: any) => ({
+                    label: number.phoneNumber,
+                    value: number.phoneNumber
+                }));
             }
         }),
         to: Property.ShortText({
