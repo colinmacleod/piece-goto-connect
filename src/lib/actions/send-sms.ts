@@ -91,17 +91,19 @@ export const sendSms = createAction({
         }),
     },
     async run(context) {
+        const token = (context.auth as OAuth2PropertyValue).access_token;
         return await httpClient.sendRequest({
             method: HttpMethod.POST,
-            url: 'https://api.goto.com/connect/v1/sms',
+            url: 'https://api.jive.com/messaging/v1/messages',
             headers: {
-                'Authorization': `Bearer ${context.auth.access_token}`,
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             body: {
-                from: context.propsValue.from,
-                to: context.propsValue.to,
-                message: context.propsValue.message
+                ownerPhoneNumber: context.propsValue.from,
+                contactPhoneNumbers: context.propsValue.to,
+                body: context.propsValue.message
             }
         });
     }
