@@ -13,13 +13,13 @@ export const sendSms = createAction({
             description: 'Phone number to send SMS from',
             required: true,
             refreshers: [],
-            options: async (propsValue) => {
+            options: async ({ auth }) => {
                 // Call GoTo API to get available numbers
                 const response = await httpClient.sendRequest({
                     method: HttpMethod.GET,
                     url: 'https://api.goto.com/connect/v1/phone-numbers',
                     headers: {
-                        'Authorization': `Bearer ${(propsValue.auth as OAuth2PropertyValue).access_token}`
+                        'Authorization': `Bearer ${(auth as OAuth2PropertyValue).access_token}`
                     }
                 });
                 return response.body.numbers.map((number: any) => ({
